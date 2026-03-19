@@ -57,9 +57,9 @@ int delete(int n, tree* Tree){
                     if (prev==NULL){
                         Tree->head = NULL;
                     }else if(prev->data > current->data){
-                        prev->next_right = NULL;
-                    }else{
                         prev->next_left = NULL;
+                    }else{
+                        prev->next_right = NULL;
                     }
                     free(current);
                     return 0;
@@ -67,9 +67,9 @@ int delete(int n, tree* Tree){
                     if (prev==NULL){
                         Tree->head = current->next_right;
                     }else if(prev->data > current->data){
-                        prev->next_right = current->next_right;
-                    }else{
                         prev->next_left = current->next_right;
+                    }else{
+                        prev->next_right = current->next_right;
                     }
                     free(current);
                     return 0;
@@ -79,33 +79,45 @@ int delete(int n, tree* Tree){
                 if (prev==NULL){
                         Tree->head = current->next_left;
                 }else if(prev->data > current->data){
-                        prev->next_right = current->next_left;
-                }else{
                         prev->next_left = current->next_left;
+                }else{
+                        prev->next_right = current->next_left;
                 }
                 free(current);
                 return 0;
             }else{
                 tree_element* max_left = current->next_left;
                 tree_element* max_parent = current;
-                while(max_left->next_right != NULL){
+                while (max_left->next_right != NULL) {
                     max_parent = max_left;
                     max_left = max_left->next_right;
                 }
                 current->data = max_left->data;
-                max_parent->next_right = max_left->next_left;
+                if (max_parent == current) {
+                    max_parent->next_left = max_left->next_left;
+                }else{
+                    max_parent->next_right = max_left->next_left;
+                }
                 free(max_left);
                 return 0;
             }
         }else{
             if ((current->next_left == NULL) && (current->next_right == NULL)){
-                printf("No such element found");
+                printf("No such element found\n");
                 return 0;
             }else{
                 prev = current;
                 if (current->data > n){
+                    if (current->next_left == NULL){
+                        printf("No such element found\n");
+                        return 0;
+                    }
                     current = current->next_left;
                 }else{
+                    if (current->next_right == NULL){
+                        printf("No such element found\n");
+                        return 0;
+                    }
                     current = current->next_right;
                 }
             }
@@ -170,16 +182,15 @@ void print_tree(tree_element* element, int level) {
 
 int main(void)
 {
-    tree my_tree = {NULL};
-    add(5, &my_tree);  
-    add(3, &my_tree);
-    add(7, &my_tree);
-    add(4, &my_tree);
-    add(6, &my_tree);  
-    add(9, &my_tree);
-    add(1, &my_tree);
-    add(10, &my_tree);
-    delete(10, &my_tree);
-    print_tree(my_tree.head, 0);
+    tree test_tree = {NULL};
+    add(5, &test_tree);  
+    add(9, &test_tree);
+    add(7, &test_tree);
+    add(6, &test_tree);
+    add(3, &test_tree);  
+    add(4, &test_tree);
+    add(1, &test_tree);
+    delete(9, &test_tree);
+    print_tree(test_tree.head, 0);
     return 0;
 }
