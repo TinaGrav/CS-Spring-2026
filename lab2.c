@@ -9,6 +9,7 @@ typedef struct el{
 }el;
 
 
+
 void shell_sort(el* arr, int size) {
     for (int step = size / 2; step > 0; step /= 2) {
         for (int i = step; i < size; ++i) {
@@ -28,7 +29,8 @@ int binary_search(float num, el* arr, int size){
     while (left <= right) {
         int mid = left + (right - left) / 2;
         if (arr[mid].key == num) {
-            return  printf("Element found: %f %d\n", arr[mid].key, arr[mid].data);
+            printf("Element found: %f %d\n", arr[mid].key, arr[mid].data);
+            return mid;
         }
         else if (arr[mid].key < num) {
             left = mid + 1; 
@@ -38,6 +40,7 @@ int binary_search(float num, el* arr, int size){
         }
     }
     printf("Element not found");
+    return 0;
 }
 
 void add_element(el* new_el, float key, int data){
@@ -47,6 +50,18 @@ void add_element(el* new_el, float key, int data){
     new_el->data = data;
 }
 
+void create_arr(FILE* input_file, el* arr){
+    for (int i = 0; i < 15; i++){ 
+            int data;
+            float key;
+            if (fscanf(input_file, "%f %d", &key, &data)!=2) {
+                printf("Error");
+                break;
+            }
+            add_element(&arr[i], key, data);
+        }
+}
+
 void print_arr(el* arr){
     for (int i = 0; i < 15; i++){
         printf("%f %d\n", arr[i].key, arr[i].data);
@@ -54,32 +69,21 @@ void print_arr(el* arr){
 }
 int main(void)
 {
-    el arr[15];
-    FILE* input_file = fopen("input_file.txt", "r");
-    if (input_file == NULL) {
-        printf("Error");
-        return 0;
-    }
-
-    for (int i = 0; i < 15; i++){ 
-        int data;
-        float key;
-        if (fscanf(input_file, "%f %d", &key, &data)!=2) {
-            printf("Error");
-            break;
-        }
-        add_element(&arr[i], key, data);
-    }
-
     printf("You can test programm. what do you want to do:\n");
     printf("(1) - sort already sorted file, (2) - sort reversed file, (3) - sort file with random values, (4) - test binary search\n");
     printf("Write in number of action: ");
     int act;
     scanf("%d", &act);
-    
-    switch (act)
-    {
+    el arr[15];
+    switch (act){
     case 1:
+        FILE* input_file1 = fopen("input_file1.txt", "r");
+        if (input_file1 == NULL) {
+            printf("Error");
+            return 0;
+        }
+        create_arr(input_file1, arr);
+        fclose(input_file1);
         printf("\nArray from input_file1.txt:\n");
         print_arr(arr);
         printf("\nSorted array:\n");
@@ -87,6 +91,13 @@ int main(void)
         print_arr(arr);
         break;
     case 2:
+        FILE* input_file2 = fopen("input_file2.txt", "r");
+        if (input_file2 == NULL) {
+            printf("Error");
+            return 0;
+        }
+        create_arr(input_file2, arr);
+        fclose(input_file2);
         printf("\nArray from input_file2.txt:\n");
         print_arr(arr);
         printf("\nSorted array:\n");
@@ -94,19 +105,33 @@ int main(void)
         print_arr(arr);
         break;
     case 3:
-        printf("\nArray from input_file2.txt:\n");
+        FILE* input_file3 = fopen("input_file3.txt", "r");
+        if (input_file3 == NULL) {
+            printf("Error");
+            return 0;
+        }
+        create_arr(input_file3, arr);
+        fclose(input_file3);
+        printf("\nArray from input_file3.txt:\n");
         print_arr(arr);
         printf("\nSorted array:\n");
         shell_sort(arr, 15);
         print_arr(arr);
         break;
     case 4:
+        FILE* input_file = fopen("input_file1.txt", "r"); 
+        if (input_file == NULL) {
+            printf("Error");
+            return 0;
+        }
+        create_arr(input_file, arr);
+        fclose(input_file);
         float num;
         scanf("%f", &num);
         binary_search(num, arr, 15);
+        break;
     default:
         break;
     }
-    fclose(input_file);
     return 0;
 }
