@@ -1,1 +1,0 @@
-delete(9, &test_tree);
