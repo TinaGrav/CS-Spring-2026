@@ -4,11 +4,7 @@
 typedef struct el{
     int data;
     float key;
-    struct el *next;
-    struct el *parent;
 }el;
-
-
 
 void shell_sort(el* arr, int size) {
     for (int step = size / 2; step > 0; step /= 2) {
@@ -44,8 +40,6 @@ int binary_search(float num, el* arr, int size){
 }
 
 void add_element(el* new_el, float key, int data){
-    new_el->next = NULL;
-    new_el->parent = NULL;
     new_el->key = key;
     new_el->data = data;
 }
