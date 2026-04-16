@@ -10,62 +10,63 @@ typedef struct Node{
     char var;
     struct Node* left; 
     struct Node* right; 
-}Node;
+} Node;
 
-char *postfix = NULL;  
-int postfix_size = 0;  
-char *stack = NULL;
-int stackTop = -1;
-int stackSize = 0;
+typedef struct {
+    char *str;
+    int size;
+} PostfixString;
 
-Node **st = NULL;
-int stTop = -1;
-int stSize = 0;
+typedef struct {
+    char *items;
+    int top;
+    int size;
+} CharStack;
 
-void addChar(char c) {
-    postfix = (char*)realloc(postfix, (postfix_size + 1) * sizeof(char));
-    postfix[postfix_size++] = c;
+typedef struct {
+    Node **items;
+    int top;
+    int size;
+} NodeStack;
+
+void add_char(PostfixString *pf, char c) {
+    pf->str = (char*)realloc(pf->str, (pf->size + 1) * sizeof(char));
+    pf->str[pf->size++] = c;
 }
 
-void push(char c) {
-    stack = (char*)realloc(stack, (stackSize + 1) * sizeof(char));
-    stack[++stackTop] = c;
-    stackSize++;
+void push_char(CharStack *s, char c) {
+    s->items = (char*)realloc(s->items, (s->size + 1) * sizeof(char));
+    s->items[++s->top] = c;
+    s->size++;
 }
 
-char pop() {
-    if (stackTop >= 0) {
-        return stack[stackTop--];
+char pop_char(CharStack *s) {
+    if (s->top >= 0) {
+        return s->items[s->top--];
     }
     return '\0';
 }
 
-char peek() {
-    if (stackTop >= 0) {
-        return stack[stackTop];
+char peek_char(CharStack *s) {
+    if (s->top >= 0) {
+        return s->items[s->top];
     }
     return '\0';
 }
 
-int isEmpty() {
-    return stackTop == -1;
-}
-
-int precedence(char op) {
+int priority(char op) {
     if (op == '+' || op == '-') return 1;
     if (op == '*' || op == '/') return 2;
     if (op == '^') return 3;
     return 0;
 }
 
-void infixToPostfix(const char *infix) {
-    free(postfix);
-    free(stack);
-    postfix = NULL;
-    stack = NULL;
-    postfix_size = 0;
-    stackTop = -1;
-    stackSize = 0;
+
+void make_postfix(const char *infix, PostfixString *pf) {
+    CharStack opStack;
+    opStack.items = NULL;
+    opStack.top = -1;
+    opStack.size = 0;
     
     int i = 0;
     int len = strlen(infix);
@@ -78,60 +79,64 @@ void infixToPostfix(const char *infix) {
         }
         if (isdigit(c)) {
             while (i < len && isdigit(infix[i])) {
-                addChar(infix[i]);
+                add_char(pf, infix[i]);
                 i++;
             }
-            addChar(' ');
+            add_char(pf, ' ');
             continue;
         }
         if (isalpha(c)) {
-            addChar(c);
-            addChar(' ');
+            add_char(pf, c);
+            add_char(pf, ' ');
             i++;
             continue;
         }
         if (c == '(') {
-            push(c);
+            push_char(&opStack, c);
             i++;
             continue;
         }
         if (c == ')') {
-            while (!isEmpty() && peek() != '(') {
-                addChar(pop());
-                addChar(' ');
+            while (opStack.top != -1 && peek_char(&opStack) != '(') {
+                add_char(pf, pop_char(&opStack));
+                add_char(pf, ' ');
             }
-            pop(); 
+            pop_char(&opStack); 
             i++;
             continue;
         }
-        if (c=='+' || c=='-' || c=='*' || c=='/' || c=='^') {
-            while (!isEmpty() && peek() != '(' &&
-                   (precedence(peek()) > precedence(c) ||
-                    (precedence(peek()) == precedence(c) && c != '^'))) {
-                addChar(pop());
-                addChar(' ');
+        if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^') {
+            while (opStack.top != -1 && peek_char(&opStack) != '(' && (priority(peek_char(&opStack)) > priority(c) || (priority(peek_char(&opStack)) == priority(c) && c != '^'))){
+                add_char(pf, pop_char(&opStack));
+                add_char(pf, ' ');
             }
-            push(c);
+            push_char(&opStack, c);
             i++;
             continue;
         }
         i++;
     }
-    while (!isEmpty()) {
-        addChar(pop());
-        addChar(' ');
+    
+    while (opStack.top != -1) {
+        add_char(pf, pop_char(&opStack));
+        add_char(pf, ' ');
     }
+    
+    free(opStack.items);
+    opStack.items = NULL;
+    opStack.top = -1;
+    opStack.size = 0;
 }
 
-void pushNode(Node* node) {
-    st = (Node**)realloc(st, (stSize + 1) * sizeof(Node*));
-    st[++stTop] = node;
-    stSize++;
+void push_node(NodeStack *s, Node* node) {
+    s->items = (Node**)realloc(s->items, (s->size + 1) * sizeof(Node*));
+    s->items[++s->top] = node;
+    s->size++;
 }
 
-Node* popNode() {
-    if (stTop >= 0) {
-        return st[stTop--];
+Node* pop_node(NodeStack *s) {
+    if (s->top >= 0) {
+        return s->items[s->top--];
     }
     return NULL;
 }
@@ -140,6 +145,8 @@ Node* make_number(int val) {
     Node* node = (Node*)malloc(sizeof(Node));
     node->type = 0;
     node->number = val;
+    node->operation = '0';
+    node->var = '0';  
     node->left = NULL;
     node->right = NULL;
     return node;
@@ -149,6 +156,8 @@ Node* make_var(char var) {
     Node* node = (Node*)malloc(sizeof(Node));
     node->type = 1;
     node->var = var;
+    node->operation = '0'; 
+    node->number = 0;  
     node->left = NULL;
     node->right = NULL;
     return node;
@@ -158,16 +167,18 @@ Node* make_oper(char op, Node* left, Node* right) {
     Node* node = (Node*)malloc(sizeof(Node));
     node->type = 2;
     node->operation = op;
+    node->number = 0;
+    node->var = '0'; 
     node->left = left;
     node->right = right;
     return node;
 }
 
-Node* make_tree(char* postfix) {
-    free(st);
-    st = NULL;
-    stTop = -1;
-    stSize = 0;
+Node* make_tree(const char* postfix) {
+    NodeStack nodeStack;
+    nodeStack.items = NULL;
+    nodeStack.top = -1;
+    nodeStack.size = 0;
     
     int i = 0;
     while (postfix[i] != '\0') {
@@ -182,24 +193,29 @@ Node* make_tree(char* postfix) {
                 num = num * 10 + (postfix[i] - '0');
                 i++;
             }
-            pushNode(make_number(num));
+            push_node(&nodeStack, make_number(num));
             continue;
         }
         if (isalpha(c)) {
-            pushNode(make_var(c));
+            push_node(&nodeStack, make_var(c));
             i++;
             continue;
         }
         if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^') {
-            Node* right = popNode();
-            Node* left = popNode();
-            pushNode(make_oper(c, left, right));
+            Node* right = pop_node(&nodeStack);
+            Node* left = pop_node(&nodeStack);
+            push_node(&nodeStack, make_oper(c, left, right));
             i++;
             continue;
         }
         i++;
     }
-    return popNode();
+    Node* result = pop_node(&nodeStack);
+    free(nodeStack.items);
+    nodeStack.items = NULL;
+    nodeStack.top = -1;
+    nodeStack.size = 0;
+    return result;
 }
 
 void print_tree(Node* element, int level) {
@@ -225,12 +241,64 @@ void free_tree(Node* node) {
     free(node);
 }
 
+int check_change(Node* node) {
+    if (node == NULL){
+        return 0;
+    }
+    if (node->left == NULL || node->right == NULL){
+    return 0;
+    }
+    if (node->operation == '*'){
+        if (node->left->type == 1 && node->right->type == 0){
+            return 1;
+        }else if(node->left->type == 0 && node->right->type == 1){
+            return 1;
+        }else{
+            return 0;
+        }
+    }else{
+        return 0;
+    }
+}
+
+Node* create_sum(Node* node) {
+    int n;
+    char varName;
+    if (node->right->type == 0){
+        n = node->right->number;  
+        varName = node->left->var; 
+    }else{
+        n = node->left->number;  
+        varName = node->right->var; 
+    }
+    Node* sumTree = make_var(varName);
+    for (int i = 1; i < n; i++) {
+        sumTree = make_oper('+', sumTree, make_var(varName));
+    }
+    return sumTree;
+}
+
+Node* simplifyTree(Node* node) {
+    if (node == NULL) return NULL;
+    node->left = simplifyTree(node->left);
+    node->right = simplifyTree(node->right);
+    if (check_change(node)) {
+        Node* newNode = create_sum(node);
+        free(node->left);   
+        free(node->right); 
+        free(node);     
+        return newNode;
+    }  
+    return node;
+}
+
 int main() {
     FILE* input_file = fopen("input_file.txt", "r");
     if (input_file == NULL) {
         printf("Error opening file\n");
         return 1;
     }
+    
     char expression[100];
     int i = 0;
     char c;
@@ -239,19 +307,32 @@ int main() {
     }
     expression[i] = '\0';
     fclose(input_file);
-    printf("%s\n", expression);
-    infixToPostfix(expression);
+    
+    printf("Expression in file: %s\n", expression);
+    
+    PostfixString postfix;
+    postfix.str = NULL;
+    postfix.size = 0;
+    
+    make_postfix(expression, &postfix);
+    
     printf("Postfix: ");
-    for (int i = 0; i < postfix_size; i++) {
-        printf("%c", postfix[i]);
+    for (int i = 0; i < postfix.size; i++) {
+        printf("%c", postfix.str[i]);
     }
     printf("\n");
-    Node* root = make_tree(postfix);
+    
+    printf("\nTree before changing:\n");
+    Node* root = make_tree(postfix.str);
     print_tree(root, 0);
     
-    free(postfix);
-    free(stack);
-    free(st);
+    root = simplifyTree(root);
+    printf("\nTree after changing:\n");
+    print_tree(root, 0);
+    
+    free(postfix.str);
+    postfix.str = NULL;
+    postfix.size = 0;
     free_tree(root);
     
     return 0;
