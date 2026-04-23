@@ -1,0 +1,183 @@
+1 one 1.0
+Added one = 1.00
+
+1 two 2.0
+Added two = 2.00
+
+1 three 3.0
+Added three = 3.00
+
+3
+Printing tree:
+[one:1.00 | three:3.00 | two:2.00]
+
+4 two
+FOUND: two = 2.00
+
+1 four 4.0
+Added four = 4.00
+
+1 five 5.0
+Added five = 5.00
+
+2 three
+three deleted
+
+3
+Printing tree:
+[one:1.00]
+│   ├── [five:5.00 | four:4.00]
+│   ├── [two:2.00]
+
+4 three
+NOT FOUND: three
+
+1 six 6.0
+Added six = 6.00
+
+1 seven 7.0
+Added seven = 7.00
+
+4 five
+FOUND: five = 5.00
+
+2 one
+one deleted
+
+3
+Printing tree:
+[four:4.00]
+│   ├── [five:5.00]
+│   ├── [seven:7.00 | six:6.00 | two:2.00]
+
+1 eight 8.0
+Added eight = 8.00
+
+1 nine 9.0
+Added nine = 9.00
+
+1 ten 10.0
+Added ten = 10.00
+
+3
+Printing tree:
+[four:4.00 | seven:7.00]
+│   ├── [eight:8.00 | five:5.00]
+│   ├── [nine:9.00]
+│   ├── [six:6.00 | ten:10.00 | two:2.00]
+
+4 eight
+FOUND: eight = 8.00
+
+4 ten
+FOUND: ten = 10.00
+
+2 five
+five deleted
+
+2 six
+six deleted
+
+3
+Printing tree:
+[four:4.00 | seven:7.00]
+│   ├── [eight:8.00]
+│   ├── [nine:9.00]
+│   ├── [ten:10.00 | two:2.00]
+
+1 eleven 11.0
+Added eleven = 11.00
+
+1 twelve 12.0
+Added twelve = 12.00
+
+1 thirt 13.0
+Added thirt = 13.00
+
+4 twelve
+FOUND: twelve = 12.00
+
+2 seven
+seven deleted
+
+2 eight
+eight deleted
+
+3
+Printing tree:
+[four:4.00 | ten:10.00]
+│   ├── [eleven:11.00]
+│   ├── [nine:9.00]
+│   ├── [thirt:13.00 | twelve:12.00 | two:2.00]
+
+1 dndfv 14.0
+Added dndfv = 14.00
+
+1 fifty 15.0
+Added fifty = 15.00
+
+1 sixty 16.0
+Added sixty = 16.00
+
+1 dvnv 17.0
+Added dvnv = 17.00
+
+4 fiftdc
+NOT FOUND: fiftdc
+
+2 nine
+nine deleted
+
+2 ten
+ten deleted
+
+3
+Printing tree:
+[four:4.00 | thirt:13.00]
+│   ├── [dndfv:14.00 | dvnv:17.00 | eleven:11.00 | fifty:15.00]
+│   ├── [sixty:16.00]
+│   ├── [twelve:12.00 | two:2.00]
+
+1 eigndd 18.0
+Added eigndd = 18.00
+
+1 niczk 19.0
+Added niczk = 19.00
+
+1 twenty 20.0
+Added twenty = 20.00
+
+3
+Printing tree:
+[dvnv:17.00 | four:4.00 | thirt:13.00]
+│   ├── [dndfv:14.00]
+│   ├── [eigndd:18.00 | eleven:11.00 | fifty:15.00]
+│   ├── [niczk:19.00 | sixty:16.00]
+│   ├── [twelve:12.00 | twenty:20.00 | two:2.00]
+
+4 twenty
+FOUND: twenty = 20.00
+
+4 foxcn
+NOT FOUND: foxcn
+
+4 eleven
+FOUND: eleven = 11.00
+
+4 four
+FOUND: four = 4.00
+
+1 twexz 21.0
+Added twexz = 21.00
+
+1 tw 22.0
+Added tw = 22.00
+
+3Printing tree:
+[dvnv:17.00 | four:4.00 | thirt:13.00 | twenty:20.00]
+│   ├── [dndfv:14.00]
+│   ├── [eigndd:18.00 | eleven:11.00 | fifty:15.00]
+│   ├── [niczk:19.00 | sixty:16.00]
+│   ├── [tw:22.00 | twelve:12.00]
+│   ├── [twexz:21.00 | two:2.00]
+

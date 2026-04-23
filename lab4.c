@@ -29,13 +29,13 @@ struct Node* create_node(int leaf) {
 
 void split_child(struct Node* parent, int i, struct Node* child) {
     struct Node* newnode = create_node(child->leaf); 
-    newnode->n = MIN - 1;
-    for (int j = 0; j < MIN-1; j++) {  // копируем правые ключи 
+    newnode->n = MAX - MIN;
+    for (int j = 0; j < newnode->n; j++) {  // копируем правые ключи 
         strcpy(newnode->keys[j], child->keys[j+MIN]);
         newnode->values[j] = child->values[j+MIN];
     }
     if (child->leaf != 1)  // если узел не лист копируем указатели детей
-        for (int j = 0; j < MIN; j++){
+        for (int j = 0; j <= newnode->n; j++){
             newnode->child[j] = child->child[j+MIN];
         }
     child->n = MIN - 1;
@@ -60,12 +60,20 @@ void add_not_full(struct Node* node, char* key, double value) { //вставка
             node->values[i+1] = node->values[i];
             i--;
         }
+        if (i >= 0 && strcmp(key, node->keys[i]) == 0) {
+            node->values[i] = value;
+            return;
+        }
         strcpy(node->keys[i+1], key);
         node->values[i+1] = value;
         node->n++;
     } else { // иначе ищем дочерний для встаки
         while (i >= 0 && strcmp(key, node->keys[i]) < 0) i--;
         i++;
+        if (i > 0 && strcmp(key, node->keys[i-1]) == 0) {
+            node->values[i-1] = value;
+            return;
+        }
         if (node->child[i]->n == MAX) {
             split_child(node, i, node->child[i]);
             if (strcmp(key, node->keys[i]) > 0) i++;
@@ -180,15 +188,15 @@ void borrowRight(struct Node* node, int i) { // взять ключ у прав�
 void mergeNodes(struct Node* node, int i) { //слияние узлов
     struct Node* child = node->child[i];
     struct Node* sibling = node->child[i+1];
-    strcpy(child->keys[MIN-1], node->keys[i]);  
-    child->values[MIN-1] = node->values[i];
+    strcpy(child->keys[child->n], node->keys[i]);
+    child->values[child->n] = node->values[i];
     for (int j = 0; j < sibling->n; j++) {  // копируем ключи правого узла в левый
-        strcpy(child->keys[j+MIN], sibling->keys[j]);
-        child->values[j+MIN] = sibling->values[j];
+        strcpy(child->keys[j+child->n+1], sibling->keys[j]);
+        child->values[j+child->n+1] = sibling->values[j];
     }
     if (child->leaf != 1){ //копируем дочерние указатели правого узла в левый
         for (int j = 0; j <= sibling->n; j++)
-            child->child[j+MIN] = sibling->child[j];
+            child->child[j+child->n+1] = sibling->child[j];
     }
     for (int j = i+1; j < node->n; j++) { // Сдвигаем ключи родителя влево
         strcpy(node->keys[j-1], node->keys[j]);
@@ -229,19 +237,27 @@ int deleteFromNode(struct Node* node, char* key) { //удаление из уз�
         else {
             if (node->child[i]->n >= MIN) { //заменяем удаляемый ключ его родителем, если у левого ребенка достаточно ключей
                 char* pred = getPred(node, i);
-                strcpy(node->keys[i], pred);
+                char tempKey[KEYLEN];
+                strcpy(tempKey, pred);
+                double tempVal;
                 struct Node* predNode = node->child[i];
                 while (!predNode->leaf) predNode = predNode->child[predNode->n];
-                node->values[i] = predNode->values[predNode->n-1];
-                deleteFromNode(node->child[i], pred);
+                tempVal = predNode->values[predNode->n-1];
+                strcpy(node->keys[i], tempKey);
+                node->values[i] = tempVal;
+                deleteFromNode(node->child[i], tempKey);
             }
             else if (node->child[i+1]->n >= MIN) { //заменяем удаляемый ключ его ребенком, если у правого ребенка достаточно ключей
                 char* succ = getSucc(node, i);
-                strcpy(node->keys[i], succ);
+                char tempKey[KEYLEN];
+                strcpy(tempKey, succ);
+                double tempVal;
                 struct Node* succNode = node->child[i+1];
                 while (!succNode->leaf) succNode = succNode->child[0];
-                node->values[i] = succNode->values[0];
-                deleteFromNode(node->child[i+1], succ);
+                tempVal = succNode->values[0];
+                strcpy(node->keys[i], tempKey);
+                node->values[i] = tempVal;
+                deleteFromNode(node->child[i+1], tempKey);
             }
             else { // сливаем ключи, если оба ребенка имеют минимум ключей
                 mergeNodes(node, i);
@@ -256,19 +272,15 @@ int deleteFromNode(struct Node* node, char* key) { //удаление из уз�
     int flag = (i == node->n);
     if (node->child[i]->n < MIN) {
         fill(node, i); // заполненяем узел если не хватает ключей
+        i = find_key(node, key);
     }
-    if (flag && i > node->n){
-        return deleteFromNode(node->child[i-1], key);
-    }
-    else{
-        return deleteFromNode(node->child[i], key);
-    }
+    return deleteFromNode(node->child[i], key);
 }
 
 int delete(char* key) { //функция удаления
     if (root == NULL) return 0;
     int result = deleteFromNode(root, key);
-    if (root->n == 0) {
+    if (root != NULL && root->n == 0) {
         struct Node* tmp = root;
         if (root->leaf) root = NULL;
         else root = root->child[0];

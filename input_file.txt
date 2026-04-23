@@ -1,0 +1,50 @@
+1 one 1.0
+1 two 2.0
+1 three 3.0
+3
+4 two
+1 four 4.0
+1 five 5.0
+2 three
+3
+4 three
+1 six 6.0
+1 seven 7.0
+4 five
+2 one
+3
+1 eight 8.0
+1 nine 9.0
+1 ten 10.0
+3
+4 eight
+4 ten
+2 five
+2 six
+3
+1 eleven 11.0
+1 twelve 12.0
+1 thirt 13.0
+4 twelve
+2 seven
+2 eight
+3
+1 dndfv 14.0
+1 fifty 15.0
+1 sixty 16.0
+1 dvnv 17.0
+4 fiftdc
+2 nine
+2 ten
+3
+1 eigndd 18.0
+1 niczk 19.0
+1 twenty 20.0
+3
+4 twenty
+4 foxcn
+4 eleven
+4 four
+1 twexz 21.0
+1 tw 22.0
+3
